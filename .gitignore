@@ -17,5 +17,7 @@ configurations/*
 !configurations/default
 
 # Secret config files
+.env
 env.yml
 env.yml-original
+server.yml
