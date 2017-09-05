@@ -120,6 +120,7 @@ public class Auth0Connection {
             LOG.warn("feedId {} not found", feedId);
             halt(400, SparkUtils.formatJSON("Must provide feedId parameter", 400));
         }
+
         if (!request.requestMethod().equals("GET")) {
             if (!userProfile.canEditGTFS(feedSource.getOrganizationId(), feedSource.projectId, feedSource.id)) {
                 LOG.warn("User {} cannot edit GTFS for {}", userProfile.email, feedId);
