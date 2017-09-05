@@ -256,6 +256,10 @@ public class FeedSource extends Model implements Cloneable {
      * Fetch the latest version of the feed.
      */
     public FeedVersion fetch (EventBus eventBus, String fetchUser) {
+        return fetch_url(eventBus, fetchUser, this.getLatestUrl());
+    }
+
+    private FeedVersion fetch_url (EventBus eventBus, String fetchUser, URL url) {
         Map<String, Object> statusMap = new HashMap<>();
         statusMap.put("message", "Downloading file");
         statusMap.put("percentComplete", 20.0);
@@ -270,7 +274,6 @@ public class FeedSource extends Model implements Cloneable {
         FeedVersion version = new FeedVersion(this);
 
         // build the URL from which to fetch
-        URL url = this.getLatestUrl();
         LOG.info("Fetching from {}", url.toString());
 
         // make the request, using the proper HTTP caching headers to prevent refetch, if applicable
@@ -322,6 +325,7 @@ public class FeedSource extends Model implements Cloneable {
             //add request header
             conn.setRequestProperty("User-Agent", "User-Agent");
             conn.connect();
+            conn.setInstanceFollowRedirects(true);
             String message;
             switch (conn.getResponseCode()) {
                 case HttpURLConnection.HTTP_NOT_MODIFIED:
@@ -334,8 +338,6 @@ public class FeedSource extends Model implements Cloneable {
                     halt(304, SparkUtils.formatJSON(message, 304));
                     return null;
                 case HttpURLConnection.HTTP_OK:
-                case HttpURLConnection.HTTP_MOVED_TEMP:
-                case HttpURLConnection.HTTP_MOVED_PERM:
                     message = String.format("Saving %s feed.", this.name);
                     LOG.info(message);
                     statusMap.put("message", message);
@@ -344,6 +346,16 @@ public class FeedSource extends Model implements Cloneable {
                     eventBus.post(statusMap);
                     newGtfsFile = version.newGtfsFile(conn.getInputStream());
                     break;
+                case HttpURLConnection.HTTP_MOVED_TEMP:
+                case HttpURLConnection.HTTP_MOVED_PERM:
+                    String newLocation = conn.getHeaderField("Location");
+                    message = String.format("Redirecting to : %s", newLocation);
+                    LOG.info(message);
+                    statusMap.put("message", message);
+                    statusMap.put("percentComplete", 15.0);
+                    statusMap.put("error", false);
+                    eventBus.post(statusMap);
+                    return fetch_url(eventBus, fetchUser, new URL(newLocation));
                 default:
                     message = String.format("HTTP status (%d: %s) retrieving %s feed", conn.getResponseCode(), conn.getResponseMessage(), this.name);
                     LOG.error(message);
