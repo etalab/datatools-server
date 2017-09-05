@@ -266,6 +266,14 @@ public class FeedSource extends Model implements Cloneable {
         statusMap.put("error", false);
         eventBus.post(statusMap);
 
+        if (url == null) {
+            statusMap.put("message", "No URL provided");
+            statusMap.put("percentComplete", 0.0);
+            statusMap.put("error", true);
+            eventBus.post(statusMap);
+            return null;
+        }
+
         FeedVersion latest = getLatest();
 
         // We create a new FeedVersion now, so that the fetched date is (milliseconds) before
