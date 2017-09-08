@@ -68,20 +68,13 @@ public class Auth0Connection {
 
     public static Auth0UserProfile getUserProfile(String token) throws Exception {
 
-        URL url = new URL("https://" + DataManager.getConfigPropertyAsText("AUTH0_DOMAIN") + "/tokeninfo");
+        URL url = new URL("https://" + DataManager.getConfigPropertyAsText("AUTH0_DOMAIN") + "/userinfo");
+
         HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-
-        //add request header
-        con.setRequestMethod("POST");
-
-        String urlParameters = "id_token=" + token;
-
-        // Send post request
+        con.setRequestProperty ("Authorization", String.format("Bearer %s", token));
+        con.setRequestMethod("GET");
+        con.setDoInput(true);
         con.setDoOutput(true);
-        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-        wr.writeBytes(urlParameters);
-        wr.flush();
-        wr.close();
 
         BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
         String inputLine;

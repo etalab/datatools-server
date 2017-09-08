@@ -212,8 +212,8 @@ public class UserController {
 //            halt(400, "Please provide valid from/to dates");
 //        }
         List<Activity> activity = new ArrayList<>();
-        Auth0UserProfile.DatatoolsInfo datatools = userProfile.getApp_metadata().getDatatoolsInfo();
-        if (datatools != null) {
+        if (userProfile.getApp_metadata() != null && userProfile.getApp_metadata().getDatatoolsInfo() != null) {
+            Auth0UserProfile.DatatoolsInfo datatools = userProfile.getApp_metadata().getDatatoolsInfo();
             Auth0UserProfile.Subscription[] subscriptions = datatools.getSubscriptions();
             if (subscriptions != null) {
                 for (Auth0UserProfile.Subscription sub : subscriptions) {

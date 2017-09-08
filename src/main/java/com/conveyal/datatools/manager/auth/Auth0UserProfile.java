@@ -236,7 +236,10 @@ public class Auth0UserProfile {
     public boolean hasProject(String projectID, String organizationId) {
         if (canAdministerApplication()) return true;
         if (canAdministerOrganization(organizationId)) return true;
-        if(app_metadata.getDatatoolsInfo() == null || app_metadata.getDatatoolsInfo().projects == null) return false;
+        if(app_metadata == null || 
+           app_metadata.getDatatoolsInfo() == null || 
+           app_metadata.getDatatoolsInfo().projects == null)
+            return false;
         for(Project project : app_metadata.getDatatoolsInfo().projects) {
             if (project.project_id.equals(projectID)) return true;
         }
@@ -246,12 +249,13 @@ public class Auth0UserProfile {
     public boolean canAdministerApplication() {
         // NOTE: user can administer application by default if running without authentication
         if (Auth0Connection.authDisabled()) return true;
+        if (app_metadata == null) return false;
+        if (app_metadata.getDatatoolsInfo() == null) return false;
+        if(app_metadata.getDatatoolsInfo().permissions == null) return false;
 
-        if(app_metadata.getDatatoolsInfo() != null && app_metadata.getDatatoolsInfo().permissions != null) {
-            for(Permission permission : app_metadata.getDatatoolsInfo().permissions) {
-                if(permission.type.equals("administer-application")) {
-                    return true;
-                }
+        for(Permission permission : app_metadata.getDatatoolsInfo().permissions) {
+            if(permission.type.equals("administer-application")) {
+                return true;
             }
         }
         return false;
