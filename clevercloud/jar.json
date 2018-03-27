@@ -1,0 +1,9 @@
+  {
+    "build": {
+      "type": "maven",
+      "goal": "-Dmaven.test.skip=true package"
+    },
+    "deploy": {
+      "jarName": "target/datatool-server.jar"
+    }
+  }
