@@ -155,6 +155,12 @@
                 <updatePolicy>always</updatePolicy>
             </snapshots>
         </repository>
+
+        <!-- This repository behaves as a proxy to fetch and build from github -->
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -189,9 +195,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.conveyal</groupId>
+            <groupId>com.github.conveyal</groupId>
             <artifactId>gtfs-lib</artifactId>
-            <version>3.2.0</version>
+            <version>dev-SNAPSHOT</version>
         </dependency>
 
         <dependency>
